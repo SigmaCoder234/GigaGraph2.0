@@ -1,69 +1,71 @@
-# Giga Graph
+# Giga Graph (BDZ Edition) 🎓
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-brightgreen?logo=python)](https://www.python.org/)
-![version](https://img.shields.io/badge/version-1.0.0-green)
+![version](https://img.shields.io/badge/version-1.1.0-blue)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Downloads](https://img.shields.io/github/downloads/FatalX2080/GigaGraph/total?logo=github&color=orange)
 
-This tool assists with graph theory by helping you visualize structures and solve common problems. Also, if you find any error, write to her in the **issue** section. We will be supporting the project for a while. 
+**Giga Graph** — это инструмент для визуализации и анализа графов, полностью адаптированный под требования учебного задания (БДЗ). В данной версии реализовано решение всех 10 задач, включая построение матриц, поиск устойчивых множеств и анализ характеристик графа.
 
-**Special thanks to [Vrudem](https://github.com/vrudem) - _creator of the core_ and [Zennerest](https://github.com/Zennerest) - _creator of the original idea_**
+## 🌟 Возможности (Реализованные задачи)
+Программа автоматически генерирует диаграмму Хассе по номеру варианта и решает следующие задачи:
 
-# ❗️Notification
- 1. The program was created solely for familiarization with the topic "graphs"
- 2. There may be errors in the program. We do not guarantee the correctness of the answers.
- 3. Interface errors are also possible, so it's better to use the console version.
+1.  **Матрицы:** Построение матриц смежности и инцидентности.
+2.  **Устойчивые множества:** Определение минимальных положительных и отрицательных внешне устойчивых множеств (метод Магу).
+3.  **Расстояния:** Построение матрицы расстояний.
+4.  **Метрики:** Определение радиуса и диаметра графа.
+5.  **Реберный граф:** Проверка на реберность и построение образа.
+6.  **Связность:** Определение вершинной и реберной связности.
+7.  **Блоки:** Выделение всех блоков графа.
+8.  **Остов:** Построение остова и матриц фундаментальных циклов/разрезов.
+9.  **Эйлеровость:** Проверка и рекомендации по добавлению ребер.
+10. **Гамильтоновость:** Анализ по теореме Дирака и поиск недостающих ребер.
 
-# 🚀Quick Start
-Go to [release page](https://github.com/FatalX2080/GigaGraph/releases) and download last stable release.
+## 🚀 Быстрый старт (WSL / Ubuntu)
 
-# 🖥️Instalation 
-### Poertry 
+### 1. Подготовка системы
+Для отрисовки графов и работы интерфейса необходимо установить системные библиотеки:
+```bash
+sudo apt update
+sudo apt install -y graphviz libmpv-dev libgtk-3-0 libgstreamer1.0-0
 ```
-git clone https://github.com/FatalX2080/GigaGraph.git
-poetry shell
-poetry install
-cd src
-flet run main.py
+
+### 2. Установка проекта
+```bash
+git clone [https://github.com/SigmaCoder234/GigaGraph2.0](https://github.com/SigmaCoder234/GigaGraph2.0.git)
+cd GigaGraph
+
+# Создание и активация виртуального окружения
+python3 -m venv venv
+source venv/bin/activate
+
+# Установка зависимостей
+pip install -r requirements.txt
 ```
-### Pypi
+
+### 3. Запуск
+
+```bash
+flet run --web main.py
 ```
-git clone https://github.com/FatalX2080/GigaGraph.git
-python3 -m venv .venv
-source /.venv/bin/activate
-pip install requirements.txt
-cd src
-python3 main.py
-``` 
-# 🌴 Project Tree
-```
+
+### 🖥️ Использование
+Введите свой номер по списку в поле "Issue in the magazine".
+
+Нажмите кнопку "Evaluate".
+
+Программа сгенерирует граф согласно таблицам М1 и М2 из задания и выведет пошаговое решение всех задач в виде интерактивных карточек.
+
+###🌴 Структура проекта
+```Plaintext
 GigaGraph
-├── config.py
-├── LICENSE
-├── main.py
-├── README.md
-├── requirements.txt
-├── gui
-│   ├── __init__.py
-│   ├── gui_cards.py
-│   ├── gui.py
-│   └── graph_draftsman.py
-├── recognizer
-│   ├── __init__.py
-│   └── main.py
-└── solvers
-    ├── __init__.py
-    ├── graph_gen.py
-    ├── all_not_fixed.py
-    ├── nx_core.py
-    └── task_result_class.py
-
+├── main.py             # Точка входа
+├── config.py           # Конфигурация цветов и размеров
+├── requirements.txt    # Зависимости Python
+├── gui/
+│   ├── gui.py          # Основной интерфейс (Flet)
+│   ├── gui_cards.py    # Логика отображения карточек задач
+│   └── graph_draftsman.py # Отрисовка через Graphviz
+└── solvers/
+    ├── nx_core.py      # Математическое ядро (NetworkX)
+    ├── graph_gen.py    # Генератор вариантов (М1, М2, НОК)
+    └── task_result_class.py # Формат обмена данными
 ```
-
-# 🌟 Features
-| Feature          | Status  | Notes                        |
-|------------------|:-------:|------------------------------|
-| Image recognezing| ❄️      | I'm lazy. If you cv2 enjoyer send me note |
-| Task 2 / 8       | ❄️      | Write to [Vrudem](https://github.com/vrudem) if you have any ideas|
-| (non-) Python core | ❄️      | Сreate a fork and create new core |
-
-

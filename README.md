@@ -30,7 +30,7 @@ sudo apt install -y graphviz libmpv-dev libgtk-3-0 libgstreamer1.0-0
 
 ### 2. Установка проекта
 ```bash
-git clone [https://github.com/SigmaCoder234/GigaGraph2.0](https://github.com/SigmaCoder234/GigaGraph2.0.git)
+git clone https://github.com/SigmaCoder234/GigaGraph2.0.git
 cd GigaGraph
 
 # Создание и активация виртуального окружения

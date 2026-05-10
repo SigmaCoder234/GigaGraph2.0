@@ -139,7 +139,34 @@ class Task1(Task):
 class Task2(Task):
     def __init__(self):
         super().__init__()
+        self.title.value = "Задание 2: Устойчивые множества"
+        self.formula = ft.Markdown("", extension_set=ft.MarkdownExtensionSet.GITHUB_WEB)
+        self.result_text = ft.Text("")
+        self.add_obj(get_description_title("Математическое решение (Метод Магу):"))
+        self.add_obj(self.formula)
+        self.add_obj(ft.Divider())
+        self.add_obj(get_description_title("Краткий ответ:"))
+        self.add_obj(self.result_text)
 
+    def evaluate(self, solver: CuteGraph):
+        res = solver.find_externally_stable_sets()
+        if not res.success: return
+
+        nodes = res.data['nodes']
+        # Формируем красивую формулу
+        terms = []
+        for v in nodes:
+            preds = [u for u in nodes if any(e == (u, v) for e in res.data['edges'])]
+            clause = " + ".join([f"x{u}" for u in ([v] + preds)])
+            terms.append(f"({clause})")
+        
+        formula_str = "Положительная устойчивость Φ⁺ = " + " * ".join(terms)
+        self.formula.value = f"Для поиска минимальных множеств минимизируем булеву функцию:\n\n`{formula_str}`"
+        
+        pos_str = ", ".join([f"{{{', '.join(map(str, s))}}}" for s in res.data['pos_minimal']])
+        neg_str = ", ".join([f"{{{', '.join(map(str, s))}}}" for s in res.data['neg_minimal']])
+        
+        self.result_text.value = f"Минимальные положительные: {pos_str}\nМинимальные отрицательные: {neg_str}"
 
 class Task3(Task):
     def __init__(self):
@@ -219,6 +246,7 @@ class Task5(Task):
         is_line = answer.data["is_line_graph"]
         if is_line:
             self.edge.value = f"Edge state: yes"
+            self.img.visible = True # Показываем картинку
             v, e = answer.data["line_graph_nodes"], answer.data["line_graph_edges"]
             gd = Draftsman(v, e)
             img = gd.display_graph("Line graph")
@@ -226,6 +254,7 @@ class Task5(Task):
             Task.resize_image(self.img)
         else:
             self.edge.value = f"Edge state: no"
+            self.img.visible = False # ПРЯЧЕМ ПУСТУЮ КАРТИНКУ (это уберет ошибку)
 
 
 class Task6(Task):
@@ -289,7 +318,28 @@ class Task7(Task):
 class Task8(Task):
     def __init__(self):
         super().__init__()
+        self.title.value = "Задание 8: Остов и циклы"
+        self.tree_info = ft.Text("")
+        self.matrix = ft.DataTable(columns=[ft.DataColumn(ft.Text("."))])
+        self.add_obj(self.tree_info)
+        self.add_obj(get_description_title("Матрица фундаментальных циклов:"))
+        self.add_obj(ft.Row([self.matrix], scroll=ft.ScrollMode.AUTO))
 
+    def evaluate(self, solver: CuteGraph):
+        res = solver.build_spanning_tree()
+        if not res.success: 
+            self.tree_info.value = res.error
+            return
+
+        edges = res.data['edges_list']
+        self.tree_info.value = f"Ребра остова: {res.data['tree_edges']}\nХорды: {res.data['chords']}"
+        
+        self.matrix.columns = [ft.DataColumn(ft.Text("№"))] + [ft.DataColumn(ft.Text(e)) for e in edges]
+        self.matrix.rows.clear()
+        
+        for i, row in enumerate(res.data['cycle_matrix']):
+            cells = [ft.DataCell(ft.Text(f"C{i+1}"))] + [ft.DataCell(ft.Text(str(v))) for v in row]
+            self.matrix.rows.append(ft.DataRow(cells=cells))
 
 class Task9(Task):
     def __init__(self):

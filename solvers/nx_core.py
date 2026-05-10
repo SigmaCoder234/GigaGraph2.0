@@ -141,9 +141,59 @@ class CuteGraph:
             )
         
 
-    #def 
-    # """2. положительные и отрицательные внешние устойчивые множества"""
-        
+    def find_externally_stable_sets(self) -> TaskResult:
+        """2. Минимальные внешне устойчивые множества (Метод Магу)"""
+        try:
+            nodes = sorted(self.di_graph.nodes())
+            
+            def get_minimal_sets(is_positive=True):
+                # Формируем логические условия для каждой вершины
+                conditions = []
+                for v in nodes:
+                    # Для положительного: v или его предшественники
+                    # Для отрицательного: v или его последователи
+                    if is_positive:
+                        neighbors = [u for u in nodes if self.di_graph.has_edge(u, v)]
+                    else:
+                        neighbors = [u for u in nodes if self.di_graph.has_edge(v, u)]
+                    
+                    clause = {v} | set(neighbors)
+                    conditions.append(clause)
+                
+                # Поиск минимальных покрытий (упрощенный перебор для студенческих графов)
+                from itertools import combinations
+                for r in range(1, len(nodes) + 1):
+                    found = []
+                    for subset in combinations(nodes, r):
+                        s_set = set(subset)
+                        if all(len(c & s_set) > 0 for c in conditions):
+                            # Проверка на минимальность
+                            is_minimal = True
+                            for prev in found:
+                                if set(prev).issubset(s_set):
+                                    is_minimal = False
+                                    break
+                            if is_minimal:
+                                found.append(list(subset))
+                    if found:
+                        return found
+                return []
+
+            pos_sets = get_minimal_sets(is_positive=True)
+            neg_sets = get_minimal_sets(is_positive=False)
+
+            return TaskResult(
+                success=True,
+                task_name="Внешне устойчивые множества",
+                data={
+                    'pos_minimal': pos_sets,
+                    'neg_minimal': neg_sets,
+                    'nodes': nodes,
+                    'edges': list(self.di_graph.edges())
+                }
+            )
+        except Exception as e:
+            return TaskResult(success=False, task_name="Task 2", error=str(e))
         
     def create_distance_matrix(self) -> TaskResult:
         """3. Матрица расстояний"""
@@ -415,47 +465,42 @@ class CuteGraph:
         
 
     
-    def build_spanning_tree(self) -> TaskResult: #КРИИИИНЖ
-        """8. Построить остов и соответствующие матрицы"""
+    def build_spanning_tree(self) -> TaskResult:
+        """8. Построение остова и фундаментальных матриц"""
         try:
             if not nx.is_connected(self.undi_graph):
-                return TaskResult(
-                    success=True,
-                    task_name="Остовное дерево",
-                    data={'has_spanning_tree': False, 'reason': 'Граф не связный'}
-                )
-            
-            # Строим остовное дерево (минимальное остовное дерево)
-            spanning_tree = nx.minimum_spanning_tree(self.undi_graph)
-            
-            # Матрица циклов (нужна фундаментальная система циклов)
-            cycle_basis = nx.cycle_basis(self.undi_graph)
-            cycle_matrix = self._create_cycle_matrix(cycle_basis)
-            
-            # Матрица разрезов (упрощённо)
-            cut_matrix = self._create_cut_matrix(spanning_tree)
-            
+                return TaskResult(success=False, task_name="Task 8", error="Граф не связен")
+
+            tree = nx.minimum_spanning_tree(self.undi_graph)
+            edges = list(self.undi_graph.edges())
+            tree_edges = list(tree.edges())
+            chords = [e for e in edges if e not in tree_edges and (e[1], e[0]) not in tree_edges]
+
+            # Матрица циклов
+            cycle_matrix = []
+            for u, v in chords:
+                path = nx.shortest_path(tree, u, v)
+                cycle = path + [u]
+                row = [0] * len(edges)
+                for i in range(len(cycle)-1):
+                    e = tuple(sorted((cycle[i], cycle[i+1])))
+                    for idx, full_e in enumerate(edges):
+                        if tuple(sorted(full_e)) == e:
+                            row[idx] = 1
+                cycle_matrix.append(row)
+
             return TaskResult(
                 success=True,
-                task_name="Остовное дерево",
+                task_name="Остов и циклы",
                 data={
-                    'spanning_tree_edges': list(spanning_tree.edges()),
-                    'spanning_tree_nodes': list(spanning_tree.nodes()),
-                    'cycle_basis': cycle_basis,
+                    'tree_edges': tree_edges,
+                    'chords': chords,
                     'cycle_matrix': cycle_matrix,
-                    'cut_matrix': cut_matrix,
-                    'fundamental_cycles_count': len(cycle_basis)
-                },
-                metadata={
-                    'note': 'Матрицы циклов и разрезов представлены в упрощённом виде'
+                    'edges_list': [f"{e[0]}-{e[1]}" for e in edges]
                 }
             )
         except Exception as e:
-            return TaskResult(
-                success=False,
-                task_name="Остовное дерево",
-                error=str(e)
-            )
+            return TaskResult(success=False, task_name="Task 8", error=str(e))
 
     def _create_cycle_matrix(self, cycle_basis):
         """Вспомогательная функция для создания матрицы циклов"""
